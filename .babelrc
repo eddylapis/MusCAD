@@ -1,0 +1,11 @@
+{
+  "presets": [ "es2015" ],
+  "plugins": [
+    "add-module-exports",
+    "transform-es2015-modules-umd",
+    "transform-object-assign",
+    "transform-es2015-object-super",
+    "transform-strict-mode",
+    [ "transform-es2015-classes", { "loose": true } ]
+  ]
+}
