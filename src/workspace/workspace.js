@@ -4,8 +4,8 @@
  * @namespace window
  */
 
-import Canvas from './Canvas';
-import getGL from './getGL';
+import Canvas from './canvas';
+import getGL from './get-gl';
 
 class Workspace {
   constructor() {

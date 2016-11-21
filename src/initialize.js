@@ -1,8 +1,8 @@
-import Workspace from './workspace/Workspace';
+import Workspace from './workspace/workspace';
 import { VertexShaderSrc, FragmentShaderSrc } from './graphics/glsl/default';
-import makeShader from './graphics/makeShader';
-import makeProgram from './graphics/makeProgram';
-import setRenderingState from './graphics/setRenderingState';
+import makeShader from './graphics/make-shader';
+import makeProgram from './graphics/make-program';
+import setRenderingState from './graphics/set-rendering-state';
 
 Workspace.initialize((ws) => {
   ws.createCanvas();
