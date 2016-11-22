@@ -6,6 +6,7 @@
 
 import Canvas from './canvas';
 import getGL from './get-gl';
+import forever from './forever';
 
 class Workspace {
   constructor() {
@@ -29,6 +30,8 @@ class Workspace {
   initialize(cb) {
     if (cb) cb.call(this, this);
   }
+
+  forever(cb) { forever(cb); }
 }
 
 const instance = new Workspace();
