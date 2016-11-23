@@ -8,6 +8,8 @@ import Canvas from './canvas';
 import getGL from './get-gl';
 import forever from './forever';
 
+import CameraEvents from '../camera/camera-events';
+
 class Workspace {
   constructor() {
     this._canvas = null;
@@ -29,6 +31,11 @@ class Workspace {
 
   initialize(cb) {
     if (cb) cb.call(this, this);
+  }
+
+  initCamera(onViewChange, onProjChange) {
+    CameraEvents.listenViewChange(onViewChange);
+    CameraEvents.listenProjChange(onProjChange);
   }
 
   forever(cb) { forever(cb); }

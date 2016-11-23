@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "earcut": "^2.1.1",
+    "geom3": "0.0.1-alpha",
     "gl-matrix": "^2.3.2",
     "keymirror": "^0.1.1",
     "lodash": "^4.13.1"
