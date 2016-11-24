@@ -11,6 +11,7 @@
 
 const bytesForArray = 4;
 const bytesForElement = 2;
+const arrayDimension = 3;
 
 class BufferContext {
   constructor() {
@@ -71,7 +72,7 @@ class BufferContext {
   }
 
   uploadArray(startIndex, data) {
-    this.gl.bufferSubData(this.gl.ARRAY_BUFFER, startIndex * bytesForArray, data);
+    this.gl.bufferSubData(this.gl.ARRAY_BUFFER, startIndex * bytesForArray * arrayDimension, data);
   }
 
   uploadElement(startIndex, data) {
