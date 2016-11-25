@@ -12,11 +12,15 @@
 const bytesForArray = 4;
 const bytesForElement = 2;
 const arrayDimension = 3;
+const _bytesToIndex = (v) => v / bytesForArray / arrayDimension;
 
 class BufferContext {
   constructor() {
     this._gl = null;
     this._buffers = {};
+    this._buffersHead = {};
+    this._currentArray = null;
+    this._currentElement = null;
   }
 
   get gl() { return this._gl; }
@@ -27,15 +31,23 @@ class BufferContext {
     if (cb) cb.call(this, this, this.buffers);
   }
 
+  head(bufferName) { return this._buffersHead[bufferName]; }
+  headIndex(bufferName) { return _bytesToIndex(this.head(bufferName)); }
+  headIndexDiff(bufferName, typedArray) {
+    return _bytesToIndex(this.head(bufferName) - typedArray.buffer.byteLength);
+  }
+
   initBuffer(bufferName) {
     this._buffers[bufferName] = this.gl.createBuffer();
   }
 
   bindArray(bufferName) {
+    this._currentArray = bufferName;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers[bufferName]);
   }
 
   unBindArray() {
+    this._currentArray = null;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
   }
 
@@ -48,10 +60,12 @@ class BufferContext {
   }
 
   bindElement(bufferName) {
+    this._currentElement = bufferName;
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers[bufferName]);
   }
 
   unBindElement() {
+    this._currentElement = null;
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
   }
 
@@ -77,6 +91,20 @@ class BufferContext {
 
   uploadElement(startIndex, data) {
     this.gl.bufferSubData(this.gl.ELEMENT_ARRAY_BUFFER, startIndex * bytesForElement, data);
+  }
+
+  appendArray(data) {
+    let byteLen = data.buffer.byteLength;
+    let head = this._buffersHead[this._currentArray] || 0;
+    this.gl.bufferSubData(this.gl.ARRAY_BUFFER, head, data);
+    this._buffersHead[this._currentArray] = head + byteLen;
+  }
+
+  appendElement(data) {
+    let byteLen = data.buffer.byteLength;
+    let head = this._buffersHead[this._currentElement] || 0;
+    this.gl.bufferSubData(this.gl.ELEMENT_ARRAY_BUFFER, head, data);
+    this._buffersHead[this._currentElement] = head + byteLen;
   }
 }
 
