@@ -6,7 +6,7 @@
  *   - all pointers to shader variables
  */
 
-const bytesForArray = 4;
+const BYTES_FLOAT32 = 4;
 
 export default class ProgramContext {
   constructor(gl, glProgram) {
@@ -35,14 +35,25 @@ export default class ProgramContext {
     this.gl.enableVertexAttribArray(this.attributes[attrName]);
   }
 
+  attrPointer1f(attrName, stride=0, offset=0) {
+    this.gl.vertexAttribPointer(
+      this.attributes[attrName],
+      1,
+      this.gl.FLOAT,
+      false,
+      stride * BYTES_FLOAT32,
+      offset * BYTES_FLOAT32
+    );
+  }
+
   attrPointer3f(attrName, stride=0, offset=0) {
     this.gl.vertexAttribPointer(
       this.attributes[attrName],
       3,
       this.gl.FLOAT,
       false,
-      stride * bytesForArray,
-      offset * bytesForArray
+      stride * BYTES_FLOAT32,
+      offset * BYTES_FLOAT32
     );
   }
 
@@ -52,5 +63,9 @@ export default class ProgramContext {
 
   uniformMat4(uniformName, matrix) {
     this.gl.uniformMatrix4fv(this.uniforms[uniformName], false, matrix);
+  }
+
+  uniform1i(uniformName, value) {
+    this.gl.uniform1i(this.uniforms[uniformName], value);
   }
 }
