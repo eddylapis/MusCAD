@@ -9,10 +9,10 @@
  *   - dynamically resize and update buffers
  */
 
-const bytesForArray = 4;
-const bytesForElement = 2;
+const BYTES_FLOAT32 = 4;
+const BYTES_UINT16 = 2;
 const arrayDimension = 3;
-const _bytesToIndex = (v) => v / bytesForArray / arrayDimension;
+const _bytesToIndex = (v) => v / BYTES_FLOAT32 / arrayDimension;
 
 class BufferContext {
   constructor() {
@@ -21,6 +21,7 @@ class BufferContext {
     this._buffersHead = {};
     this._currentArray = null;
     this._currentElement = null;
+    this._currentTexture = null;
   }
 
   get gl() { return this._gl; }
@@ -39,6 +40,10 @@ class BufferContext {
 
   initBuffer(bufferName) {
     this._buffers[bufferName] = this.gl.createBuffer();
+  }
+
+  initTexture(bufferName) {
+    this._buffers[bufferName] = this.gl.createTexture();
   }
 
   bindArray(bufferName) {
@@ -77,33 +82,68 @@ class BufferContext {
     this.unBindElement();
   }
 
+  bindTex2d(bufferName) {
+    this._currentTexture = bufferName;
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.buffers[bufferName]);
+  }
+
+  unBindTex2d() {
+    this._currentTexture = null;
+    this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+  }
+
   allocArray(size) {
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, size * bytesForArray, this.gl.DYNAMIC_DRAW);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, size * BYTES_FLOAT32, this.gl.DYNAMIC_DRAW);
   }
 
   allocElement(size) {
-    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, size * bytesForElement, this.gl.DYNAMIC_DRAW);
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, size * BYTES_UINT16, this.gl.DYNAMIC_DRAW);
   }
 
-  uploadArray(startIndex, data) {
-    this.gl.bufferSubData(this.gl.ARRAY_BUFFER, startIndex * bytesForArray * arrayDimension, data);
+  allocTex2df(width, height) {
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      width,
+      height,
+      0,
+      this.gl.RGBA,
+      this.gl.FLOAT,
+      new Float32Array(BYTES_FLOAT32 * width * height)
+    );
   }
 
-  uploadElement(startIndex, data) {
-    this.gl.bufferSubData(this.gl.ELEMENT_ARRAY_BUFFER, startIndex * bytesForElement, data);
+  uploadTex2df(x, y, dx, dy, dataView) {
+    this.gl.texSubImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      x, y, dx, dy,
+      this.gl.RGBA,
+      this.gl.FLOAT,
+      dataView
+    );
   }
 
-  appendArray(data) {
-    let byteLen = data.buffer.byteLength;
+  uploadArray(startIndex, dataView) {
+    this.gl.bufferSubData(this.gl.ARRAY_BUFFER, startIndex * BYTES_FLOAT32 * arrayDimension, dataView);
+  }
+
+  uploadElement(startIndex, dataView) {
+    this.gl.bufferSubData(this.gl.ELEMENT_ARRAY_BUFFER, startIndex * BYTES_UINT16, dataView);
+  }
+
+  appendArray(dataView) {
+    let byteLen = dataView.buffer.byteLength;
     let head = this._buffersHead[this._currentArray] || 0;
-    this.gl.bufferSubData(this.gl.ARRAY_BUFFER, head, data);
+    this.gl.bufferSubData(this.gl.ARRAY_BUFFER, head, dataView);
     this._buffersHead[this._currentArray] = head + byteLen;
   }
 
-  appendElement(data) {
-    let byteLen = data.buffer.byteLength;
+  appendElement(dataView) {
+    let byteLen = dataView.buffer.byteLength;
     let head = this._buffersHead[this._currentElement] || 0;
-    this.gl.bufferSubData(this.gl.ELEMENT_ARRAY_BUFFER, head, data);
+    this.gl.bufferSubData(this.gl.ELEMENT_ARRAY_BUFFER, head, dataView);
     this._buffersHead[this._currentElement] = head + byteLen;
   }
 }
