@@ -125,6 +125,26 @@ class BufferContext {
     );
   }
 
+  appendTex2df(dataView) {
+    let transWidth = 4096;
+    let byteLen = dataView.buffer.byteLength;
+    let head = this._buffersHead[this._currentTexture] || 0;
+    let totalX = head / 16; // 64 bytes -> 4 pixels
+    let x = totalX % transWidth;
+    let y = Math.floor(totalX / transWidth);
+
+    this.gl.texSubImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      x, y, 4, 1,
+      this.gl.RGBA,
+      this.gl.FLOAT,
+      dataView
+    );
+
+    this._buffersHead[this._currentTexture] = head + byteLen;
+  }
+
   uploadArray(startIndex, dataView) {
     this.gl.bufferSubData(this.gl.ARRAY_BUFFER, startIndex * BYTES_FLOAT32 * arrayDimension, dataView);
   }
