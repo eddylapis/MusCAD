@@ -68,4 +68,9 @@ export default class ProgramContext {
   uniform1i(uniformName, value) {
     this.gl.uniform1i(this.uniforms[uniformName], value);
   }
+
+  uniform1f(uniformName, value) {
+    this.gl.uniform1f(this.uniforms[uniformName], value);
+  }
+
 }
