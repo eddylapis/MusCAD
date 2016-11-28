@@ -43,33 +43,63 @@ Workspace.glProgram = program;
 
 // Initialize Rendering States
 setRenderingState(Workspace.gl, (m) => {
-  m.defineFront();
-  m.drawFrontOnly();
-  m.depthTest();
-  m.blendTexture();
+  //m.defineFront();
+  //m.drawFrontOnly();
+  //m.depthTest();
+  //m.blendTexture();
 });
 
 // Initialize Buffers
+const _defaultBufferLength = 65535;
 BufferContext.initialize(Workspace.gl, (c) => {
   c.initBuffer('vertexBuffer');
   c.bindArray('vertexBuffer');
-  c.allocArray(65535);
+  c.allocArray(_defaultBufferLength);
+
+  c.initBuffer('ModelIDBuffer');
+  c.bindArray('ModelIDBuffer');
+  c.allocArray(_defaultBufferLength);
 
   c.initBuffer('indexBuffer');
   c.bindElement('indexBuffer');
-  c.allocElement(65535);
+  c.allocElement(_defaultBufferLength);
+
+  c.initTexture('transTexBuffer');
 });
 
 // Initialize Attributes and Uniforms
 ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
+  pc.initUniform('transformations');
+  pc.initUniform('matView');
+  pc.initUniform('matProjection');
+  pc.initUniform('transWidth');
+  pc.initUniform('transHeight');
+
   BufferContext.withArray('vertexBuffer', (c) => {
     pc.initAttr('aPosition');
     pc.enableAttrArray('aPosition');
     pc.attrPointer3f('aPosition', 0, 0);
   });
 
-  pc.initUniform('matView');
-  pc.initUniform('matProjection');
+  BufferContext.withArray('ModelIDBuffer', (c) => {
+    pc.initAttr('aModelID');
+    pc.enableAttrArray('aModelID');
+    pc.attrPointer1f('aModelID', 0, 0);
+  });
+
+  let gl = Workspace.gl
+
+  let ext = gl.getExtension("OES_texture_float");
+  if (!ext) throw('No OES_texture_float');
+
+  pc.uniform1i('transformations', 1); //texture1
+  gl.activeTexture(gl.TEXTURE1);
+  BufferContext.bindTex2d('transTexBuffer');
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  BufferContext.allocTex2df(4096, 256);
+  pc.uniform1f('transWidth', 4096.0);
+  pc.uniform1f('transHeight', 256.0);
 });
 
 // Initialize Camera
@@ -97,7 +127,7 @@ Workspace.camera.emitProjChange();
 // Start Mian Loop
 let gl = Workspace.gl;
 Workspace.forever(() => {
-  gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0);
+  gl.drawElements(gl.TRIANGLES, 65535, gl.UNSIGNED_SHORT, 0);
 });
 
 function _checkError(val) {
