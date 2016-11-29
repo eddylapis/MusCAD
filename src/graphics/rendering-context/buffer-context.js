@@ -32,7 +32,7 @@ class BufferContext {
     if (cb) cb.call(this, this, this.buffers);
   }
 
-  head(bufferName) { return this._buffersHead[bufferName]; }
+  head(bufferName) { return this._buffersHead[bufferName] || 0; }
   headIndex(bufferName) { return _bytesToIndex(this.head(bufferName)); }
   headIndexDiff(bufferName, typedArray) {
     return _bytesToIndex(this.head(bufferName) - typedArray.buffer.byteLength);
