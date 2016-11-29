@@ -50,18 +50,18 @@ setRenderingState(Workspace.gl, (m) => {
 });
 
 // Initialize Buffers
-const _defaultBufferLength = 65535;
+const _defaultBufferLength = 131072;
 BufferContext.initialize(Workspace.gl, (c) => {
   c.initBuffer('vertexBuffer');
   c.bindArray('vertexBuffer');
   c.allocArray(_defaultBufferLength);
 
-  c.initBuffer('ModelIDBuffer');
-  c.bindArray('ModelIDBuffer');
-  c.allocArray(_defaultBufferLength);
+  c.initBuffer('faceIndexBuffer');
+  c.bindElement('faceIndexBuffer');
+  c.allocElement(_defaultBufferLength);
 
-  c.initBuffer('indexBuffer');
-  c.bindElement('indexBuffer');
+  c.initBuffer('edgeIndexBuffer');
+  c.bindElement('edgeIndexBuffer');
   c.allocElement(_defaultBufferLength);
 
   c.initTexture('transTexBuffer');
@@ -81,11 +81,7 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
     pc.attrPointer3f('aPosition', 0, 0);
   });
 
-  BufferContext.withArray('ModelIDBuffer', (c) => {
-    pc.initAttr('aModelID');
-    pc.enableAttrArray('aModelID');
-    pc.attrPointer1f('aModelID', 0, 0);
-  });
+  pc.initAttr('aModelID');
 
   let gl = Workspace.gl
 
@@ -123,12 +119,6 @@ Workspace.initCamera(
 Workspace.camera = new DefaultCamera();
 Workspace.camera.emitViewChange();
 Workspace.camera.emitProjChange();
-
-// Start Mian Loop
-let gl = Workspace.gl;
-Workspace.forever(() => {
-  gl.drawElements(gl.TRIANGLES, 65535, gl.UNSIGNED_SHORT, 0);
-});
 
 function _checkError(val) {
   if (val && val.error) throw(val.error);
