@@ -102,16 +102,34 @@ function _genEdgeIndices(idxTable, edge) {
   return [edge.start, edge.end].map(v => idxTable[v.id]);
 }
 
+function _getFaceState(face) {
+  let color = face.material && face.material.color;
+  return {
+    color: color && new Float32Array(color),
+  }
+}
+
+function _getRefState(ref) {
+  let color = ref.material && ref.material.color || [0.7,0.7,0.7,1];
+  return {
+    color: new Float32Array(color),
+  }
+}
+
 function genBuffers(definition) {
   let localIdxTable = {};
   let vBuffer = _genVertexBuffer(localIdxTable, definition.vertices);
 
-  let allFaceIndices = [];
+  let allFaceObj = [];
   for (let key in definition.faces) {
     let face = definition.faces[key];
     let faceIndices = _genFaceIndices(localIdxTable, face);
 
-    allFaceIndices.push(...faceIndices);
+    let faceObj = {};
+    faceObj.indices = new Uint16Array(faceIndices);
+    Object.assign(faceObj, _getFaceState(face));
+
+    allFaceObj.push(faceObj);
   }
 
   let allEdgeIndices = [];
@@ -122,13 +140,15 @@ function genBuffers(definition) {
     allEdgeIndices.push(...edgeIndices);
   }
 
-  let arrTrans = _.values(definition.references).map(v => v.absTrans);
+  let refs = _.values(definition.references).map(ref =>
+    Object.assign({}, {trans: ref.absTrans}, _getRefState(ref))
+  );
 
   return {
     vBuffer: vBuffer,
-    faceIdx: new Uint16Array(allFaceIndices),
+    faceObjs: allFaceObj,
     edgeIdx: new Uint16Array(allEdgeIndices),
-    arrTrans: arrTrans,
+    refs: refs,
   };
 }
 
@@ -140,20 +160,22 @@ function addBuffer(bufferObj) {
     c.appendArray(bufferObj.vBuffer);
   });
 
-  let indexOffset = BufferContext.headIndexDiff('vertexBuffer', bufferObj.vBuffer);
   // shift indices
-  let shiftedFaceIdx = bufferObj.faceIdx.map(i => i + indexOffset);
-  let shiftedEdgeIdx = bufferObj.edgeIdx.map(i => i + indexOffset);
+  let indexOffset = BufferContext.headIndexDiff('vertexBuffer', bufferObj.vBuffer);
 
   // upload face indices
-  bufferObj.faceIdxBufName = 'faceIndexBuffer';
-  bufferObj.faceOffset = BufferContext.head('faceIndexBuffer');
-  bufferObj.faceCount = shiftedFaceIdx.length;
-  BufferContext.withElement('faceIndexBuffer', (c) => {
-    c.appendElement(shiftedFaceIdx);
+  bufferObj.faceObjs.forEach((faceObj) => {
+    let shiftedFaceIdx = faceObj.indices.map(i => i + indexOffset);
+    faceObj.faceIdxBufName = 'faceIndexBuffer';
+    faceObj.faceOffset = BufferContext.head('faceIndexBuffer');
+    faceObj.faceCount = shiftedFaceIdx.length;
+    BufferContext.withElement('faceIndexBuffer', (c) => {
+      c.appendElement(shiftedFaceIdx);
+    });
   });
 
   // upload edge indices
+  let shiftedEdgeIdx = bufferObj.edgeIdx.map(i => i + indexOffset);
   bufferObj.edgeIdxBufName = 'edgeIndexBuffer';
   bufferObj.edgeOffset = BufferContext.head('edgeIndexBuffer');
   bufferObj.edgeCount = shiftedEdgeIdx.length;
@@ -165,12 +187,10 @@ function addBuffer(bufferObj) {
   BufferContext.gl.activeTexture(BufferContext.gl.TEXTURE1);
   BufferContext.bindTex2d('transTexBuffer');
 
-  bufferObj.modelIDs = [];
-  bufferObj.arrTrans.forEach((transDataView) => {
-    let modelID = ++_lastModelID;
+  bufferObj.refs.forEach((ref) => {
+    ref.modelID = ++_lastModelID;
 
-    bufferObj.modelIDs.push(modelID);
-    BufferContext.appendTex2df(transDataView);
+    BufferContext.appendTex2df(ref.trans);
   });
 }
 
