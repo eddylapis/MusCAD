@@ -100,6 +100,20 @@ class BufferContext {
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, size * BYTES_UINT16, this.gl.DYNAMIC_DRAW);
   }
 
+  uploadTex2d(imageDataView) {
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D,
+      0,
+      this.gl.RGBA,
+      imageDataView.width,
+      imageDataView.height,
+      0,
+      this.gl.RGBA,
+      this.gl.UNSIGNED_BYTE,
+      new Uint8Array(imageDataView.data)
+    );
+  }
+
   allocTex2df(width, height) {
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,

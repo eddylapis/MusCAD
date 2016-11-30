@@ -76,4 +76,8 @@ export default class ProgramContext {
   attr1f(bufferName, value) {
     this.gl.vertexAttrib1f(this.attributes[bufferName], value);
   }
+
+  attr4fv(bufferName, value) {
+    this.gl.vertexAttrib4fv(this.attributes[bufferName], value);
+  }
 }
