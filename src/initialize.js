@@ -43,9 +43,9 @@ Workspace.glProgram = program;
 
 // Initialize Rendering States
 setRenderingState(Workspace.gl, (m) => {
-  //m.defineFront();
-  //m.drawFrontOnly();
-  //m.depthTest();
+  m.defineFront();
+  m.drawFrontOnly();
+  m.depthTest();
   //m.blendTexture();
 });
 
@@ -74,6 +74,8 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
   pc.initUniform('matProjection');
   pc.initUniform('transWidth');
   pc.initUniform('transHeight');
+  pc.initUniform('texture0');
+  pc.initUniform('hasTexture');
 
   BufferContext.withArray('vertexBuffer', (c) => {
     pc.initAttr('aPosition');
@@ -82,12 +84,14 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
   });
 
   pc.initAttr('aModelID');
+  pc.initAttr('aColor');
 
   let gl = Workspace.gl
 
   let ext = gl.getExtension("OES_texture_float");
   if (!ext) throw('No OES_texture_float');
 
+  pc.uniform1i('texture0', 0); //texture0
   pc.uniform1i('transformations', 1); //texture1
   gl.activeTexture(gl.TEXTURE1);
   BufferContext.bindTex2d('transTexBuffer');
