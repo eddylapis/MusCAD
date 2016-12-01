@@ -19,7 +19,7 @@ export default function setRenderingState(gl, cb) {
 
 function _defineFront(gl) { gl.frontFace(gl.CCW); }
 function _drawFrontOnly(gl) { gl.enable(gl.CULL_FACE); }
-function _depthTest(gl) { gl.enable(gl.CULL_FACE); }
+function _depthTest(gl) { gl.enable(gl.DEPTH_TEST); }
 
 function _blendTexture(gl) {
   gl.enable(gl.BLEND);
