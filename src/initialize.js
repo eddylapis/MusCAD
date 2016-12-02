@@ -46,7 +46,7 @@ setRenderingState(Workspace.gl, (m) => {
   m.defineFront();
   m.drawFrontOnly();
   m.depthTest();
-  //m.blendTexture();
+  m.blendTexture();
 });
 
 // Initialize Buffers
@@ -76,6 +76,8 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
   pc.initUniform('transHeight');
   pc.initUniform('texture0');
   pc.initUniform('hasTexture');
+  pc.initUniform('matTexUV');
+  pc.initUniform('matTexScale');
 
   BufferContext.withArray('vertexBuffer', (c) => {
     pc.initAttr('aPosition');

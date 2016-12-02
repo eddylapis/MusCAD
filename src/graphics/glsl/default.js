@@ -1,6 +1,8 @@
 let VertexShaderSrc = `
   uniform mat4 matView;
   uniform mat4 matProjection;
+  uniform mat4 matTexUV;
+  uniform mat4 matTexScale;
 
   uniform sampler2D transformations;
   uniform float transWidth;
@@ -11,7 +13,7 @@ let VertexShaderSrc = `
   attribute vec4 aColor;
 
   varying mediump vec4 vColor;
-  varying mediump vec3 vPosition;
+  varying mediump vec2 vTexCoord;
 
   void main(void) {
     float col = mod(aModelID, transWidth / 2.) * 4.;
@@ -25,7 +27,7 @@ let VertexShaderSrc = `
 
     mat4 matTrans = mat4(trans1, trans2, trans3, trans4);
 
-    vPosition = aPosition;
+    vTexCoord = (matTexScale * matTexUV * vec4(aPosition, 1.0)).xy;
     vColor = aColor;
 
     gl_Position = matProjection * matView * matTrans * vec4(aPosition, 1.0);
@@ -36,13 +38,13 @@ let FragmentShaderSrc = `
   uniform bool hasTexture;
 
   varying mediump vec4 vColor;
-  varying mediump vec3 vPosition;
+  varying mediump vec2 vTexCoord;
 
   uniform sampler2D texture0;
 
   void main(void) {
     if (hasTexture) {
-      gl_FragColor = vec4(texture2D(texture0, vPosition.xz).rgb, vColor.a);
+      gl_FragColor = vec4(texture2D(texture0, vTexCoord).rgb, vColor.a);
     } else {
       gl_FragColor = vColor;
     }

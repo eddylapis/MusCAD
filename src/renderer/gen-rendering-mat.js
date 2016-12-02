@@ -1,6 +1,7 @@
 import BufferContext from '../graphics/rendering-context/buffer-context';
 import getImageData from '../util/get-image-data';
 import _ from 'lodash';
+import Geom3 from 'geom3';
 
 const DEFAULT_FRONT_COLOR = [.98, .98, .98, 1];
 const DEFAULT_BACK_COLOR = [.62, .74, .93, 1];
@@ -52,6 +53,9 @@ function genRenderingMatObj(material) {
     });
 
     renderingObj.textureBufferName = bufferName;
+    renderingObj.textureScaleMat = Geom3.mat4.fromScaling(new Float32Array(16),
+      [1 / texture.width, 1 / texture.height, 1]
+    );
   }
 
   renderingObj.setDrawingState = (programContext) => {
@@ -60,6 +64,7 @@ function genRenderingMatObj(material) {
       //active texture: 0
       BufferContext.bindTex2d(renderingObj.textureBufferName);
       programContext.uniform1i('hasTexture', true);
+      programContext.uniformMat4('matTexScale', renderingObj.textureScaleMat);
     } else {
       programContext.uniform1i('hasTexture', false);
     }

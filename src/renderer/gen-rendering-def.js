@@ -1,6 +1,7 @@
 import BufferContext from '../graphics/rendering-context/buffer-context';
 import earcut from 'earcut';
 import { vec3, mat4 } from 'geom3';
+import Geom3 from 'geom3';
 import _ from 'lodash';
 
 let _lastModelID = -1;
@@ -13,12 +14,13 @@ function genRenderingDefObj(definition) {
   let allFaceObj = [];
   for (let key in definition.faces) {
     let face = definition.faces[key];
-    let faceIndices = _genFaceIndices(localIdxTable, face);
+    let {localIndices: faceIndices, uvTrans: uvTrans} = _genFaceProps(localIdxTable, face);
 
     let faceObj = {};
     faceObj.indices = new Uint16Array(faceIndices);
     faceObj.materialID = face.material && face.material.id;
     faceObj.backMaterialID = face.backMaterial && face.backMaterial.id;
+    faceObj.uvTrans = uvTrans;
 
     allFaceObj.push(faceObj);
   }
@@ -108,7 +110,7 @@ function _genVertexBuffer(idxTable, vertices) {
   return vBuffer;
 }
 
-function _genFaceIndices(idxTable, face) {
+function _genFaceProps(idxTable, face) {
   let arrOuterLoop  = face.outerLoop,
     arrInnerLoops = face.innerLoops; // loop: [v1,v2...]
 
@@ -117,14 +119,14 @@ function _genFaceIndices(idxTable, face) {
     ...arrInnerLoops.reduce((m,e) => m.concat(e), []),
   ];
 
-  let {indices: vLoopIndex} = _earcutFix(
+  let {indices: vLoopIndex, uvTrans: uvTrans} = _earcutFix(
     loops.map(v => v.position),
     _getInnerLoopStartingIdx(arrOuterLoop, arrInnerLoops)
   );
 
   let localIndices = vLoopIndex.map(i => loops[i]).map(v => idxTable[v.id]);
 
-  return localIndices;
+  return {localIndices, uvTrans};
 
   function _getInnerLoopStartingIdx(arrOuterLoop, arrInnerLoops) {
     let indices = arrInnerLoops.map(l => l.length);
@@ -135,19 +137,41 @@ function _genFaceIndices(idxTable, face) {
     return indices;
   }
 
-  function _earcutFix(arrOri, holeInd){
-    let v1 = vec3.create();
-    let v2 = vec3.create();
-    vec3.sub(v1, arrOri[1], arrOri[0]);
-    vec3.sub(v2, arrOri[2], arrOri[1]);
+  function _getPolyNormal(arrPoints) {
+    let firstVec = Geom3.sub([], arrPoints[1], arrPoints[0]);
+    let normal;
+    for (let i=1; i<arrPoints.length-1; ++i) {
+      normal = Geom3.cross([], firstVec, Geom3.sub([], arrPoints[i+1], arrPoints[i]));
+      if (!Geom3.isZeroVec(normal)) break;
+    }
+    return Geom3.norm(new Float32Array(3), normal);
+  }
 
-    let newZ = vec3.create();
+  function _getUVTrans(z) {
+    let x = Geom3.cross(new Float32Array(3), z, Geom3.Z_AXIS);
+    if (Geom3.isZeroVec(x)) x = Geom3.vec3.copy(new Float32Array(3), Geom3.X_AXIS);
+    let y = Geom3.cross(new Float32Array(3), z, x);
+
+    let m4 = Geom3.mat4.create();
+
+    m4[0]  = x[0];
+    m4[1]  = y[0];
+    m4[2]  = z[0];
+    m4[4]  = x[1];
+    m4[5]  = y[1];
+    m4[6]  = z[1];
+    m4[8]  = x[2];
+    m4[9]  = y[2];
+    m4[10] = z[2];
+
+    return m4;
+  }
+
+  function _earcutFix(arrOri, holeInd){
+    let newZ = _getPolyNormal(arrOri);
     let newY = vec3.create();
     let newX = vec3.create();
-    vec3.cross(newZ, v1, v2);
-    vec3.normalize(newZ, newZ);
-    vec3.copy(newX, v1);
-    vec3.normalize(newX, newX);
+    vec3.sub(newX, arrOri[1], arrOri[0]);
     vec3.cross(newY, newX, newZ);
 
     let m4 = mat4.create();
@@ -182,8 +206,9 @@ function _genFaceIndices(idxTable, face) {
       planarPts: pts2d.map(pt => vec3.clone(pt)),
       planar: arr2d.map(pt => vec3.clone(pt)),
       indices: indices,
-      normal: vec3.clone(newZ),
-      back_normal: vec3.negate(vec3.create(), newZ),
+      normal: vec3.copy(new Float32Array(3), newZ),
+      back_normal: vec3.negate(new Float32Array(3), newZ),
+      uvTrans: _getUVTrans(newZ),
     };
   }
 }
