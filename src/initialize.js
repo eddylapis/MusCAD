@@ -78,6 +78,14 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
   pc.initUniform('hasTexture');
   pc.initUniform('matTexUV');
   pc.initUniform('matTexScale');
+  pc.initUniform('ambientColor');
+  pc.initUniform('lightDiffuseColor');
+  pc.initUniform('lightDirection');
+
+  //pc.uniform3fv('ambientColor', [.618, .618, .618]);
+  pc.uniform3fv('ambientColor', [.88, .88, .88]);
+  pc.uniform3fv('lightDiffuseColor', [.5, .5, .5]);
+  pc.uniform3fv('lightDirection', [0, 0, -1]);
 
   BufferContext.withArray('vertexBuffer', (c) => {
     pc.initAttr('aPosition');
@@ -87,6 +95,7 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
 
   pc.initAttr('aModelID');
   pc.initAttr('aColor');
+  pc.initAttr('aNormal');
 
   let gl = Workspace.gl
 
@@ -95,6 +104,8 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
 
   pc.uniform1i('texture0', 0); //texture0
   pc.uniform1i('transformations', 1); //texture1
+  gl.activeTexture(gl.TEXTURE0); // avoid warning
+  BufferContext.bindTex2d('transTexBuffer');
   gl.activeTexture(gl.TEXTURE1);
   BufferContext.bindTex2d('transTexBuffer');
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -110,6 +121,9 @@ Workspace.initCamera(
     if (cam === Workspace.camera) {
       ProgramContexts.with(Workspace.glProgram, (pc) => {
         pc.uniformMat4('matView', matView);
+
+        let matCam = cam.matCamera;
+        pc.uniform3fv('lightDirection', [matCam[8], matCam[9], matCam[10]]);
       });
     }
   },

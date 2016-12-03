@@ -28,9 +28,11 @@ export default function renderingLoop() {
 
           pc.uniformMat4('matTexUV', faceObj.uvTrans);
 
+          pc.attr3fv('aNormal', faceObj.normal);
           _resolveFaceMaterial(ref, faceObj).setDrawingState(pc);
           gl.drawElements(gl.TRIANGLES, faceObj.faceCount, gl.UNSIGNED_SHORT, faceObj.faceOffset);
 
+          pc.attr3fv('aNormal', faceObj.backNormal);
           _resolveBackFaceMaterial(ref, faceObj).setDrawingState(pc);
           gl.drawElements(gl.TRIANGLES, faceObj.faceCount, gl.UNSIGNED_SHORT, faceObj.backFaceOffset);
         });

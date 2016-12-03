@@ -73,8 +73,16 @@ export default class ProgramContext {
     this.gl.uniform1f(this.uniforms[uniformName], value);
   }
 
+  uniform3fv(uniformName, value) {
+    this.gl.uniform3fv(this.uniforms[uniformName], value);
+  }
+
   attr1f(bufferName, value) {
     this.gl.vertexAttrib1f(this.attributes[bufferName], value);
+  }
+
+  attr3fv(bufferName, value) {
+    this.gl.vertexAttrib3fv(this.attributes[bufferName], value);
   }
 
   attr4fv(bufferName, value) {

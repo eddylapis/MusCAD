@@ -8,12 +8,23 @@ let VertexShaderSrc = `
   uniform float transWidth;
   uniform float transHeight;
 
+  uniform vec3 ambientColor;
+  uniform vec3 lightDiffuseColor;
+  uniform vec3 lightDirection;
+
   attribute vec3 aPosition;
   attribute float aModelID;
   attribute vec4 aColor;
+  attribute vec3 aNormal;
 
   varying mediump vec4 vColor;
   varying mediump vec2 vTexCoord;
+  varying mediump vec3 vLight;
+
+  vec3 directionalLight(vec3 normal) {
+    return ambientColor +
+           max(dot(normal, lightDirection), 0.0) * lightDiffuseColor;
+  }
 
   void main(void) {
     float col = mod(aModelID, transWidth / 2.) * 4.;
@@ -30,6 +41,8 @@ let VertexShaderSrc = `
     vTexCoord = (matTexScale * matTexUV * vec4(aPosition, 1.0)).xy;
     vColor = aColor;
 
+    vLight = directionalLight(aNormal);
+
     gl_Position = matProjection * matView * matTrans * vec4(aPosition, 1.0);
   }
 `;
@@ -39,14 +52,15 @@ let FragmentShaderSrc = `
 
   varying mediump vec4 vColor;
   varying mediump vec2 vTexCoord;
+  varying mediump vec3 vLight;
 
   uniform sampler2D texture0;
 
   void main(void) {
     if (hasTexture) {
-      gl_FragColor = vec4(texture2D(texture0, vTexCoord).rgb, vColor.a);
+      gl_FragColor = vec4(texture2D(texture0, vTexCoord).rgb * vLight, vColor.a);
     } else {
-      gl_FragColor = vColor;
+      gl_FragColor = vec4(vColor.rgb * vLight, vColor.a);
     }
   }
 `;

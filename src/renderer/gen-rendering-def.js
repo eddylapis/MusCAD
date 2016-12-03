@@ -14,13 +14,20 @@ function genRenderingDefObj(definition) {
   let allFaceObj = [];
   for (let key in definition.faces) {
     let face = definition.faces[key];
-    let {localIndices: faceIndices, uvTrans: uvTrans} = _genFaceProps(localIdxTable, face);
+    let {
+      localIndices: faceIndices,
+      uvTrans: uvTrans,
+      normal: normal,
+      backNormal: backNormal,
+    } = _genFaceProps(localIdxTable, face);
 
     let faceObj = {};
     faceObj.indices = new Uint16Array(faceIndices);
     faceObj.materialID = face.material && face.material.id;
     faceObj.backMaterialID = face.backMaterial && face.backMaterial.id;
     faceObj.uvTrans = uvTrans;
+    faceObj.normal = normal;
+    faceObj.backNormal = backNormal;
 
     allFaceObj.push(faceObj);
   }
@@ -119,14 +126,19 @@ function _genFaceProps(idxTable, face) {
     ...arrInnerLoops.reduce((m,e) => m.concat(e), []),
   ];
 
-  let {indices: vLoopIndex, uvTrans: uvTrans} = _earcutFix(
+  let {
+    indices: vLoopIndex,
+    uvTrans: uvTrans,
+    normal: normal,
+    backNormal: backNormal,
+  } = _earcutFix(
     loops.map(v => v.position),
     _getInnerLoopStartingIdx(arrOuterLoop, arrInnerLoops)
   );
 
   let localIndices = vLoopIndex.map(i => loops[i]).map(v => idxTable[v.id]);
 
-  return {localIndices, uvTrans};
+  return {localIndices, uvTrans, normal, backNormal};
 
   function _getInnerLoopStartingIdx(arrOuterLoop, arrInnerLoops) {
     let indices = arrInnerLoops.map(l => l.length);
@@ -207,7 +219,7 @@ function _genFaceProps(idxTable, face) {
       planar: arr2d.map(pt => vec3.clone(pt)),
       indices: indices,
       normal: vec3.copy(new Float32Array(3), newZ),
-      back_normal: vec3.negate(new Float32Array(3), newZ),
+      backNormal: vec3.negate(new Float32Array(3), newZ),
       uvTrans: _getUVTrans(newZ),
     };
   }
