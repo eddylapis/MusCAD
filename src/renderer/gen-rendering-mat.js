@@ -19,9 +19,9 @@ const DEFAULT_BACK = {
 let materialRenderingObjects = {};
 let lastTextureID = -1;
 
-function _newTex0Buffer(bufferName) {
-  let gl = BufferContext.gl;
+let gl = BufferContext.gl;
 
+function _newTex0Buffer(bufferName) {
   BufferContext.initTexture(bufferName);
 
   gl.activeTexture(gl.TEXTURE0);
