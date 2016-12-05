@@ -12,6 +12,7 @@ Workspace.initialize((ws) => {
   ws.createCanvas();
   ws.registerGL();
   ws.appendCanvas('default-workspace');
+  ws.initEvents();
 });
 
 // Initialize Shaders and Program

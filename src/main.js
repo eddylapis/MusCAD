@@ -3,6 +3,8 @@ import { genRenderingDefObj, uploadRenderingDefObj } from './renderer/gen-render
 import { genRenderingMatObjs } from './renderer/gen-rendering-mat';
 import renderingLoop from './renderer/rendering-loop';
 
+import OrbitTool from './tools/orbit';
+
 import _ from 'lodash';
 
 // load demo
@@ -27,3 +29,6 @@ _.forEach(definitions, (definition, defID) => {
 
 // Start Mian Loop
 Workspace.forever(renderingLoop);
+
+// Select Orbit Tool
+Workspace.selectTool(new OrbitTool(Workspace));
