@@ -4,11 +4,13 @@ import { genRenderingMatObjs } from './renderer/gen-rendering-mat';
 import renderingLoop from './renderer/rendering-loop';
 
 import OrbitTool from './tools/orbit';
+import SelectTool from './tools/select';
 
 import _ from 'lodash';
 
 // load demo
 import {definitions, materials} from './demo';
+Workspace.definitions = definitions;
 
 // set camera
 Workspace.camera._matCamera = new Float32Array(
@@ -30,5 +32,8 @@ _.forEach(definitions, (definition, defID) => {
 // Start Mian Loop
 Workspace.forever(renderingLoop);
 
-// Select Orbit Tool
-Workspace.selectTool(new OrbitTool(Workspace));
+// Register Tools
+Workspace.Tools = {};
+Workspace.Tools.OrbitTool = OrbitTool;
+Workspace.Tools.SelectTool = SelectTool;
+Workspace.selectTool(new Workspace.Tools.OrbitTool(Workspace));
