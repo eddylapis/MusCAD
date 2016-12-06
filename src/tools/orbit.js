@@ -1,16 +1,36 @@
 import Geom3 from 'geom3';
 
+import _ from 'lodash';
+
 export default class OrbitTool {
   constructor(workspace) {
     this.last_x = null;
     this.last_y = null;
     this.state = {
       rotating: false,
-      target: [0,0,0],
+      target: this._calcCenter(workspace.definitions),
     }
     this.camera = workspace.camera;
     this.displayWidth = workspace.displayWidth;
     this.displayHeight = workspace.displayHeight;
+  }
+
+  _calcCenter(definitions) {
+    let count = 0,
+        x     = 0,
+        y     = 0,
+        z     = 0;
+
+    _.values(definitions).forEach(def => {
+      _.values(def.references).forEach(ref => {
+        x += ref.absTrans[12];
+        y += ref.absTrans[13];
+        z += ref.absTrans[14];
+        count += 1;
+      });
+    });
+
+    return [x / count, y / count, z / count];
   }
 
   activate() {
