@@ -65,6 +65,8 @@ BufferContext.initialize(Workspace.gl, (c) => {
   c.bindElement('edgeIndexBuffer');
   c.allocElement(_defaultBufferLength);
 
+  c.initBuffer('edgeSelBuffer');
+
   c.initTexture('transTexBuffer');
 });
 
@@ -112,6 +114,12 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   BufferContext.allocTex2df(4096, 256);
+  BufferContext.appendTex2df(new Float32Array([
+    1,0,0,0,
+    0,1,0,0,
+    0,0,1,0,
+    0,0,0,1,
+  ]));
   pc.uniform1f('transWidth', 4096.0);
   pc.uniform1f('transHeight', 256.0);
 });

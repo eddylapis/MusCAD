@@ -3,15 +3,32 @@ import BufferContext from '../graphics/rendering-context/buffer-context';
 import ProgramContexts from '../graphics/rendering-context/program-contexts';
 import { definitionRenderingObjects } from './gen-rendering-def';
 import { materialRenderingObjects } from './gen-rendering-mat';
+import { edgeSelRenderingObj } from './gen-rendering-sel';
+import { selectedEdges } from '../workspace/selection';
 
 let gl = Workspace.gl;
 
 export default function renderingLoop() {
   ProgramContexts.with(Workspace.glProgram, (pc) => {
+    // Render Selected Elements
+    if (edgeSelRenderingObj.len) {
+      BufferContext.unBindElement();
+      BufferContext.bindArray(edgeSelRenderingObj.edgeSelBufName);
+
+      pc.attr1f('aModelID', 0);
+      pc.attr4fv('aColor', [0,0,1,1]);
+
+      pc.attrPointer3f('aPosition', 0, 0);
+      gl.drawArrays(gl.LINES, 0, edgeSelRenderingObj.len);
+    }
+
     // Use texture 0 for materials
     gl.activeTexture(gl.TEXTURE0);
 
     // Loop all definitions
+    BufferContext.bindArray('vertexBuffer');
+    pc.attrPointer3f('aPosition', 0, 0);
+
     _.values(definitionRenderingObjects).forEach((defObj) => {
       // Loop all references
       defObj.refs.forEach((ref) => {

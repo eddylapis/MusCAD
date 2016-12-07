@@ -96,6 +96,10 @@ class BufferContext {
     this.gl.bufferData(this.gl.ARRAY_BUFFER, size * BYTES_FLOAT32, this.gl.DYNAMIC_DRAW);
   }
 
+  arrayData(dataView) {
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, dataView, this.gl.STATIC_DRAW);
+  }
+
   allocElement(size) {
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, size * BYTES_UINT16, this.gl.DYNAMIC_DRAW);
   }

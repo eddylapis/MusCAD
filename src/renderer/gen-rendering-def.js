@@ -4,7 +4,7 @@ import { vec3, mat4 } from 'geom3';
 import Geom3 from 'geom3';
 import _ from 'lodash';
 
-let _lastModelID = -1;
+let _lastModelID = 0; // new models start from 1
 let definitionRenderingObjects = {};
 
 function genRenderingDefObj(definition) {
