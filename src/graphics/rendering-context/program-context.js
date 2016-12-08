@@ -35,6 +35,21 @@ export default class ProgramContext {
     this.gl.enableVertexAttribArray(this.attributes[attrName]);
   }
 
+  disableAttrArray(attrName) {
+    this.gl.disableVertexAttribArray(this.attributes[attrName]);
+  }
+
+  attrPointer1f(attrName, stride=0, offset=0) {
+    this.gl.vertexAttribPointer(
+      this.attributes[attrName],
+      1,
+      this.gl.FLOAT,
+      false,
+      stride * BYTES_FLOAT32,
+      offset * BYTES_FLOAT32
+    );
+  }
+
   attrPointer1f(attrName, stride=0, offset=0) {
     this.gl.vertexAttribPointer(
       this.attributes[attrName],
