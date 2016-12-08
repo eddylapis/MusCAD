@@ -104,6 +104,10 @@ class BufferContext {
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, size * BYTES_UINT16, this.gl.DYNAMIC_DRAW);
   }
 
+  elementData(dataView) {
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, dataView, this.gl.STATIC_DRAW);
+  }
+
   uploadTex2d(imageDataView) {
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
