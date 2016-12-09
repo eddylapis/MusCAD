@@ -8,19 +8,39 @@ import { selectedEdges } from '../workspace/selection';
 
 let gl = Workspace.gl;
 
-export default function renderingLoop() {
+function renderProjLine() {
   ProgramContexts.with(Workspace.glProgram, (pc) => {
-    // Render Selected Elements
-    if (edgeSelRenderingObj.len) {
-      BufferContext.unBindElement();
-      BufferContext.bindArray(edgeSelRenderingObj.edgeSelBufName);
+    pc.uniform1i('renderingProjLine', true);
+    pc.uniform1i('hasTexture', false);
 
-      pc.attr1f('aModelID', 0);
-      pc.attr4fv('aColor', [0,0,1,1]);
+    pc.attr3fv('aNormal', [0,0,1]);
+    pc.attr4fv('aColor', [0,0,1,1]);
 
-      pc.attrPointer3f('aPosition', 0, 0);
-      gl.drawArrays(gl.LINES, 0, edgeSelRenderingObj.len);
-    }
+    pc.enableAttrArray('lnDir');
+    pc.enableAttrArray('lnPos2');
+
+    BufferContext.bindArray('lnPos1Buffer');
+    pc.attrPointer3f('aPosition', 0, 0);
+
+    BufferContext.bindArray('lnPos2Buffer');
+    pc.attrPointer3f('lnPos2', 0, 0);
+
+    BufferContext.bindArray('lnDirBuffer');
+    pc.attrPointer1f('lnDir', 0, 0);
+
+    BufferContext.bindElement('lnElemBuffer');
+    gl.drawElements(gl.TRIANGLE_STRIP, edgeSelRenderingObj.len, gl.UNSIGNED_SHORT, 0);
+  });
+}
+
+export default function renderingLoop() {
+  // Draw Projected Lines
+  if (edgeSelRenderingObj.len) renderProjLine();
+
+  ProgramContexts.with(Workspace.glProgram, (pc) => {
+    pc.uniform1i('renderingProjLine', false);
+    pc.disableAttrArray('lnDir');
+    pc.disableAttrArray('lnPos2');
 
     // Use texture 0 for materials
     gl.activeTexture(gl.TEXTURE0);

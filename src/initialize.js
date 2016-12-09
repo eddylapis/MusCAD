@@ -100,6 +100,17 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
   pc.initAttr('aColor');
   pc.initAttr('aNormal');
 
+  // Begin Projected Line variables
+  pc.initUniform('renderingProjLine');
+  pc.initAttr('lnDir');
+  pc.initAttr('lnPos2');
+
+  BufferContext.initBuffer('lnPos1Buffer');
+  BufferContext.initBuffer('lnPos2Buffer');
+  BufferContext.initBuffer('lnDirBuffer');
+  BufferContext.initBuffer('lnElemBuffer');
+  // End Projected Line variables
+
   let gl = Workspace.gl
 
   let ext = gl.getExtension("OES_texture_float");

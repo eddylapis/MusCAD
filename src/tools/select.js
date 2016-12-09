@@ -24,12 +24,19 @@ export default class SelectTool {
         mouseY = event.offsetY;
 
     let pickedEdge = _pickEdges(this.workspace, mouseX, mouseY)[0];
-    selection.addEdge(pickedEdge);
+    if (event.ctrlKey) {
+      selection.addEdge(pickedEdge);
+      selection.invalidateEdges();
+    } else {
+      selection.clearEdge();
+      selection.addEdge(pickedEdge);
+      selection.invalidateEdges();
+    }
   }
 }
 
 function _pickEdges(workspace, mouseX, mouseY) {
-  let pickedEdges = [];
+  let pickedEdgesList = {};
   _.values(workspace.definitions).forEach((def) => {
     _.values(def.references).forEach(ref => {
       _.values(def.edges).forEach(edge => {
@@ -47,14 +54,17 @@ function _pickEdges(workspace, mouseX, mouseY) {
             Geom3.distBetweenPoints([mouseX, mouseY, vpt1[2]], vpt1) < edgeLenPx &&
               Geom3.distBetweenPoints([mouseX, mouseY, vpt2[2]], vpt2) < edgeLenPx
           ) {
-            pickedEdges.push(edge);
+            pickedEdgesList[edge.id] = {
+              edge: edge,
+              z: _.min([vpt1[2], vpt2[2]])
+            }
           }
         }
       });
     });
   });
 
-  return pickedEdges;
+  return _.sortBy(pickedEdgesList, 'z').map(o => o.edge);
 
   function _getViewPt(x,y,z) {
     return Geom3.world2view(

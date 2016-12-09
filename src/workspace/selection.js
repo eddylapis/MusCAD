@@ -6,15 +6,23 @@ let editingContext = null;
 function addEdge(edge) {
   if (!edge) return;
   selectedEdges[edge.id] = edge;
+}
 
-  genRenderingEdgeSelObj(selectedEdges);
+function clearEdge() {
+  for (let k in selectedEdges) { delete selectedEdges[k]; }
 }
 
 function setEditing(def) {
   editingContext = def;
 }
 
+function invalidateEdges() {
+  genRenderingEdgeSelObj(selectedEdges);
+}
+
 module.exports = {
+  clearEdge,
+  invalidateEdges,
   selectedEdges,
   editingContext,
   addEdge,
