@@ -230,6 +230,8 @@ function _genEdgeIndices(idxTable, edge) {
 }
 
 module.exports = {
+  _genVertexBuffer,
+  _genFaceProps,
   definitionRenderingObjects,
   genRenderingDefObj,
   uploadRenderingDefObj,

@@ -13,6 +13,7 @@ let VertexShaderSrc = `
   uniform vec3 lightDirection;
 
   uniform bool renderingProjLine;
+  uniform bool overwriteZ;
 
   attribute vec3 aPosition;
   attribute float aModelID;
@@ -73,7 +74,13 @@ let VertexShaderSrc = `
 
       vLight = directionalLight(aNormal);
 
-      gl_Position = matProjection * matView * matTrans * vec4(aPosition, 1.0);
+      if (overwriteZ) {
+        vec4 posPorj = matProjection * matView * vec4(aPosition, 1.0);
+        vec2 posScreen = posPorj.xy / posPorj.w;
+        gl_Position = vec4(posScreen,0.,1.);
+      } else {
+        gl_Position = matProjection * matView * matTrans * vec4(aPosition, 1.0);
+      }
     }
   }
 `;

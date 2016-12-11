@@ -111,6 +111,12 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
   BufferContext.initBuffer('lnElemBuffer');
   // End Projected Line variables
 
+  // Begin Selected Faces variables
+  pc.initUniform('overwriteZ');
+  pc.uniform1i('overwriteZ', false);
+  BufferContext.initBuffer('selFacesBuffer');
+  // End Selected Faces variables
+
   let gl = Workspace.gl
 
   let ext = gl.getExtension("OES_texture_float");
