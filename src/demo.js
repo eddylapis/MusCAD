@@ -26,6 +26,7 @@ for (let definitionID in jsonDefinitions) {
     let jsonEdge = jsonEdges[edgeID];
     edges[edgeID] = {
       id: edgeID,
+      definitionID: definitionID,
       start: toVertexPointer(jsonEdge.start),
       end: toVertexPointer(jsonEdge.end),
     };
@@ -36,6 +37,7 @@ for (let definitionID in jsonDefinitions) {
     let jsonFace = jsonFaces[faceID];
     faces[faceID] = {
       id: faceID,
+      definitionID: definitionID,
       outerLoop: jsonFace.outerLoop.map(toVertexPointer),
       innerLoops: jsonFace.innerLoops.map(l => l.map(toVertexPointer)),
       material: jsonMaterials[jsonFace.materialID],
@@ -49,6 +51,7 @@ for (let definitionID in jsonDefinitions) {
 
     references[refID] = {
       id: refID,
+      definitionID: definitionID,
       absTrans: new Float32Array(jsonRef.absTrans),
       material: jsonMaterials[jsonRef.materialID],
     };
