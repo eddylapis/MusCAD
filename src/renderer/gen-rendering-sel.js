@@ -3,6 +3,8 @@ import BufferContext from '../graphics/rendering-context/buffer-context';
 
 import { _genVertexBuffer, _genFaceProps } from './gen-rendering-def';
 
+import genDefBoundingBox from '../modeling/gen-def-boundingbox';
+
 import Geom3 from 'geom3';
 
 import _ from 'lodash';
@@ -58,8 +60,10 @@ function genRenderingFaceSelObj(faces) {
   }
 }
 
-function genRenderingEdgeSelObj(edges) {
+function genRenderingEdgeSelObj(edges, refs=[]) {
   let lines = [];
+
+  // selected edges
   _.forEach(edges, (edge, edgeID) => {
     _.values(Workspace.definitions[edge.definitionID].references)
       .forEach(ref => {
@@ -68,6 +72,21 @@ function genRenderingEdgeSelObj(edges) {
           Geom3.vec3.transformMat4([], edge.end.position, ref.absTrans)
         ]);
       });
+  });
+
+  // selected boundingbox
+  _.forEach(refs, (ref, refID) => {
+    let def = Workspace.definitions[ref.definitionID];
+    let bb = genDefBoundingBox(def);
+
+    if (bb) {
+      for (let line of bb.edges) {
+        lines.push([
+          Geom3.vec3.transformMat4([], line[0], ref.absTrans),
+          Geom3.vec3.transformMat4([], line[1], ref.absTrans)
+        ]);
+      }
+    }
   });
 
   // upload data

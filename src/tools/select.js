@@ -29,13 +29,16 @@ export default class SelectTool {
     if (!event.ctrlKey) {
       selection.clearEdge();
       selection.clearFace();
+      selection.clearRef();
     }
 
     //if (false && pickedEdge) {
     if (pickedEdge) {
-      selection.addEdge(pickedEdge);
+      selection.addEdge(pickedEdge.edge);
+      selection.addReference(pickedEdge.ref);
     } else if (pickedFace) {
-      selection.addFace(pickedFace);
+      selection.addFace(pickedFace.face);
+      selection.addReference(pickedFace.ref);
     }
 
     selection.invalidateSelections();
@@ -78,6 +81,7 @@ function _pickFaces(workspace, mouseX, mouseY) {
         if (_ptInPoly2D(x, y, pts)) {
           pickedFacesList[face.id] = {
             face: face,
+            ref: ref,
           }
         }
       });
@@ -95,7 +99,7 @@ function _pickFaces(workspace, mouseX, mouseY) {
     });
   }
 
-  return _.sortBy(pickedFacesList, 'z').map(o => o.face);
+  return _.sortBy(pickedFacesList, 'z');
 
   function _polyNormal(out, poly) {
     // TODO: move to Geom3
@@ -154,6 +158,7 @@ function _pickEdges(workspace, mouseX, mouseY) {
           ) {
             pickedEdgesList[edge.id] = {
               edge: edge,
+              ref: ref,
               z: _.min([vpt1[2], vpt2[2]])
             }
           }
@@ -162,7 +167,7 @@ function _pickEdges(workspace, mouseX, mouseY) {
     });
   });
 
-  return _.sortBy(pickedEdgesList, 'z').map(o => o.edge);
+  return _.sortBy(pickedEdgesList, 'z');
 }
 
 function __getViewPt(x,y,z) {

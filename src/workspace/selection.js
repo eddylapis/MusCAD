@@ -5,7 +5,13 @@ import {
 
 let selectedEdges = {};
 let selectedFaces = {};
+let selectedRefs = {};
 let editingContext = null;
+
+function addReference(ref) {
+  if (!ref) return;
+  selectedRefs[ref.id] = ref;
+}
 
 function addFace(face) {
   if (!face) return;
@@ -15,6 +21,10 @@ function addFace(face) {
 function addEdge(edge) {
   if (!edge) return;
   selectedEdges[edge.id] = edge;
+}
+
+function clearRef() {
+  for (let k in selectedRefs) { delete selectedRefs[k]; }
 }
 
 function clearEdge() {
@@ -30,7 +40,7 @@ function setEditing(def) {
 }
 
 function invalidateSelections() {
-  genRenderingEdgeSelObj(selectedEdges);
+  genRenderingEdgeSelObj(selectedEdges, selectedRefs);
   genRenderingFaceSelObj(selectedFaces);
 }
 
@@ -38,9 +48,12 @@ module.exports = {
   invalidateSelections,
   selectedEdges,
   selectedFaces,
+  selectedRefs,
   editingContext,
   clearEdge,
   clearFace,
+  clearRef,
   addEdge,
   addFace,
+  addReference,
 };
