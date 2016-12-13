@@ -4,12 +4,21 @@ import { vec3, mat4 } from 'geom3';
 import Geom3 from 'geom3';
 import _ from 'lodash';
 
+import mapVertexIndex from '../modeling/helpers/map-vertex-index';
+import flattenVertices from '../modeling/helpers/flatten-vertices';
+
 let _lastModelID = 0; // new models start from 1
 let definitionRenderingObjects = {};
 
 function genRenderingDefObj(definition) {
-  let localIdxTable = {};
-  let vBuffer = _genVertexBuffer(localIdxTable, definition.vertices);
+
+  // create rendering object
+  definitionRenderingObjects[definition.id] = {};
+
+  let renderingObj = definitionRenderingObjects[definition.id];
+
+  let localIdxTable = mapVertexIndex(definition),
+      vBuffer       = flattenVertices(definition);
 
   let allFaceObj = [];
   for (let key in definition.faces) {
