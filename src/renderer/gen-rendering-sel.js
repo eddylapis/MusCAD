@@ -1,7 +1,8 @@
 import {Workspace} from '../initialize';
 import BufferContext from '../graphics/rendering-context/buffer-context';
 
-import { _genVertexBuffer, _genFaceProps } from './gen-rendering-def';
+import getDataViewVertices from '../modeling/helpers/get-dataview-vertices';
+import {derivedFaces} from '../modeling/derived/face';
 
 import genDefBoundingBox from '../modeling/gen-def-boundingbox';
 
@@ -21,9 +22,8 @@ function genRenderingFaceSelObj(faces) {
     let definition = Workspace.definitions[face.definitionID];
     _.values(definition.references)
       .forEach(ref => {
-        let localIdxTable = {};
-        let vBuffer = _genVertexBuffer(localIdxTable, definition.vertices);
-        let { localIndices: faceIndices, } = _genFaceProps(localIdxTable, face);
+        let vBuffer = getDataViewVertices(definition);
+        let { localIndices: faceIndices } = derivedFaces[face.id];
 
         let ptsBuffer = idxToPts(vBuffer, faceIndices.concat([...faceIndices].reverse()));
 
