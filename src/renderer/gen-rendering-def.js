@@ -10,6 +10,7 @@ import getPolyNormal from '../modeling/helpers/get-poly-normal';
 import getArbitraryTransAxesAligned from '../modeling/helpers/get-arbitrary-trans-axes-aligned';
 
 import {derivedFaces, updateDerivedFace} from '../modeling/derived/face';
+import {derivedDefinitions, updateDerivedDefinition} from '../modeling/derived/definition';
 
 let _lastModelID = 0; // new models start from 1
 let definitionRenderingObjects = {};
@@ -21,8 +22,8 @@ function genRenderingDefObj(definition) {
 
   let renderingObj = definitionRenderingObjects[definition.id];
 
-  let localIdxTable = mapVertexIndex(definition),
-      vBuffer       = getDataViewVertices(definition);
+  updateDerivedDefinition(definition);
+  let {vIdxInDef: localIdxTable, vBuffer: vBuffer} = derivedDefinitions[definition.id];
 
   let allFaceObj = [];
   for (let key in definition.faces) {
