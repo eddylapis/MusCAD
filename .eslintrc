@@ -11,7 +11,7 @@
     "brace-style": [2, "1tbs", { "allowSingleLine": true }],
     "comma-dangle": [2, "always-multiline"],
     "curly": [2, "multi-line"],
-    "eqeqeq": [2, "always"],
+    "eqeqeq": 2,
     "max-statements": [2, 112],
     "no-shadow-restricted-names": 2,
     "no-use-before-define": [2, { "functions": false, "classes": false }],
