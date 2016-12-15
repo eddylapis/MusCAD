@@ -37,9 +37,9 @@ function genDerivedFace(idxTable, face) {
   function _getInnerLoopStartingIdx(arrOuterLoop, arrInnerLoops) {
     let indices = arrInnerLoops.map(l => l.length);
     let startLen = arrOuterLoop.length;
-    indices.unshift(0)
+    indices.unshift(0);
     indices = indices.map(i => i + startLen);
-    indices.pop()
+    indices.pop();
     return indices;
   }
 
@@ -76,4 +76,4 @@ module.exports = {
   derivedFaces,
   updateDerivedFace,
   genDerivedFace,
-}
+};

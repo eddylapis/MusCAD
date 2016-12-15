@@ -69,7 +69,7 @@ function genRenderingEdgeSelObj(edges, refs=[]) {
       .forEach(ref => {
         lines.push([
           Geom3.vec3.transformMat4([], edge.start.position, ref.absTrans),
-          Geom3.vec3.transformMat4([], edge.end.position, ref.absTrans)
+          Geom3.vec3.transformMat4([], edge.end.position, ref.absTrans),
         ]);
       });
   });
@@ -83,7 +83,7 @@ function genRenderingEdgeSelObj(edges, refs=[]) {
       for (let line of bb.edges) {
         lines.push([
           Geom3.vec3.transformMat4([], line[0], ref.absTrans),
-          Geom3.vec3.transformMat4([], line[1], ref.absTrans)
+          Geom3.vec3.transformMat4([], line[1], ref.absTrans),
         ]);
       }
     }

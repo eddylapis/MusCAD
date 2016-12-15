@@ -1,4 +1,4 @@
-let json = require('json-loader!./demo.json')
+let json = require('json-loader!./demo.json');
 
 let definitions = {};
 let jsonDefinitions = json.definitions;
@@ -63,7 +63,7 @@ for (let definitionID in jsonDefinitions) {
     edges: edges,
     faces: faces,
     references: references,
-  }
+  };
 }
 
 module.exports = {definitions, materials};

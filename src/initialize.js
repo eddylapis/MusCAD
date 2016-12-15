@@ -117,7 +117,7 @@ ProgramContexts.initialize(Workspace.gl, Workspace.glProgram, (pc) => {
   BufferContext.initBuffer('selFacesBuffer');
   // End Selected Faces variables
 
-  let gl = Workspace.gl
+  let gl = Workspace.gl;
 
   let ext = gl.getExtension("OES_texture_float");
   if (!ext) throw('No OES_texture_float');
@@ -172,4 +172,4 @@ function _checkError(val) {
 
 module.exports = {
   Workspace,
-}
+};

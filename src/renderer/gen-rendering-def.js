@@ -124,4 +124,4 @@ module.exports = {
   definitionRenderingObjects,
   genRenderingDefObj,
   uploadRenderingDefObj,
-}
+};

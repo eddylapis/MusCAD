@@ -3,7 +3,7 @@ export default function getImageData(src, onDone) {
   img.onload = function() {
     let data = _extractData(img);
     onDone.call(null, data);
-  }
+  };
   img.src = src;
 }
 
@@ -23,7 +23,7 @@ function _extractData(img) {
   return imgData;
 
   function isPowerOfTwo(x) {
-    return (x & (x - 1)) == 0;
+    return (x & (x - 1)) === 0;
   }
 
   function nextHighestPowerOfTwo(x) {

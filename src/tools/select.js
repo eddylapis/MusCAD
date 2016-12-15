@@ -82,7 +82,7 @@ function _pickFaces(workspace, mouseX, mouseY) {
           pickedFacesList[face.id] = {
             face: face,
             ref: ref,
-          }
+          };
         }
       });
     });
@@ -123,16 +123,16 @@ function _pickFaces(workspace, mouseX, mouseY) {
 
     for (let i=0; i<num; i++) {
       if  (
-        (poly[i][1] > y) != (poly[j][1] > y) &&
+        (poly[i][1] > y) !== (poly[j][1] > y) &&
           (x < (poly[j][0] - poly[i][0]) * (y - poly[i][1]) / (poly[j][1] - poly[i][1]) + poly[i][0])
       ) {
         c = !c;
       }
 
-      j = i
+      j = i;
     }
 
-    return c
+    return c;
   }
 }
 
@@ -159,8 +159,8 @@ function _pickEdges(workspace, mouseX, mouseY) {
             pickedEdgesList[edge.id] = {
               edge: edge,
               ref: ref,
-              z: _.min([vpt1[2], vpt2[2]])
-            }
+              z: _.min([vpt1[2], vpt2[2]]),
+            };
           }
         }
       });

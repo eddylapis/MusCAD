@@ -9,7 +9,7 @@ export default class OrbitTool {
     this.state = {
       rotating: false,
       target: this._calcCenter(workspace.definitions),
-    }
+    };
     this.camera = workspace.camera;
     this.displayWidth = workspace.displayWidth;
     this.displayHeight = workspace.displayHeight;
@@ -103,7 +103,7 @@ export default class OrbitTool {
 
       _normalizeMat4(newViewMat);
 
-      Geom3.mat4.invert(c._matCamera, newViewMat)
+      Geom3.mat4.invert(c._matCamera, newViewMat);
       c.emitViewChange();
     }
 
