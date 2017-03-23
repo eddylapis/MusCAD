@@ -1,39 +1,29 @@
-import {Workspace} from './initialize';
-import { genRenderingDefObj, uploadRenderingDefObj } from './renderer/gen-rendering-def';
-import { genRenderingMatObjs } from './renderer/gen-rendering-mat';
-import renderingLoop from './renderer/rendering-loop';
+import {
+  Application,
+  RenderingContainer,
+  Workspace,
+} from './initializer';
+
+// Run Development Scripts
+let runDevScripts = require('./_dev');
+runDevScripts(Application);
 
 import OrbitTool from './tools/orbit';
-import SelectTool from './tools/select';
+Workspace.selectTool(new OrbitTool(Workspace));
 
-import _ from 'lodash';
+// Main Loop
+Workspace.forever(() => {
+  Application.programFace.enableArrayAll();
+  Application.programFace.use();
+  for (let k in Application.RenderingContainer.parts) {
+    Application.RenderingContainer.parts[k].render(Application.programFace);
+  }
+  Application.programFace.disableArrayAll();
 
-// load demo
-import {definitions, materials} from './demo';
-Workspace.definitions = definitions;
-
-// set camera
-Workspace.camera._matCamera = new Float32Array(
-  [
-    0.76, 0.66, -0, 0,
-    -0.37, 0.43, 0.83, 0,
-    0.54, -0.62, 0.56, 0,
-    1707.52, -1484.96, 1759.9, 1,
-  ]
-);
-Workspace.camera.emitViewChange();
-
-genRenderingMatObjs(materials);
-
-_.forEach(definitions, (definition, defID) => {
-  uploadRenderingDefObj(genRenderingDefObj(definition));
+  Application.programLine.use();
+  Application.programLine.enableArrayAll();
+  for (let k in Application.RenderingContainer.solidLines) {
+    Application.RenderingContainer.solidLines[k].render(Application.programLine);
+  }
+  Application.programLine.disableArrayAll();
 });
-
-// Start Mian Loop
-Workspace.forever(renderingLoop);
-
-// Register Tools
-Workspace.Tools = {};
-Workspace.Tools.OrbitTool = OrbitTool;
-Workspace.Tools.SelectTool = SelectTool;
-Workspace.selectTool(new Workspace.Tools.OrbitTool(Workspace));

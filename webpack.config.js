@@ -7,7 +7,6 @@ const parts = require('./webpack/main');
 
 const PATHS = {
   app: path.join(__dirname, 'src'),
-  data: path.join(__dirname, 'tmp'),
   files: path.join(__dirname, 'images'),
   //style: [ path.join(__dirname, 'style', 'app.less') ],
   build: path.join(__dirname, 'build'),
@@ -38,7 +37,6 @@ switch(process.env.npm_lifecycle_event) {
   case 'build':
     config = merge(
         common,
-        parts.loadJSON(PATHS.data),
         parts.loadFile(PATHS.files),
         parts.babel(PATHS.app),
         {
@@ -61,7 +59,6 @@ switch(process.env.npm_lifecycle_event) {
     config = merge(
         common,
         parts.eslint(PATHS.app),
-        parts.loadJSON(PATHS.data),
         parts.loadFile(PATHS.files),
         parts.babel(PATHS.app),
         { devtool: 'eval-source-map' },

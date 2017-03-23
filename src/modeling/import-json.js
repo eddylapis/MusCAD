@@ -68,7 +68,7 @@ export default function importJSON(json) {
       edges: edges,
       faces: faces,
       references: references,
-    }
+    };
   }
 
   return {definitions, materials};

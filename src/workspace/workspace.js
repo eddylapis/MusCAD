@@ -15,8 +15,9 @@ class Workspace {
   constructor() {
     this._canvas = null;
     this._gl = null;
-    this._glProgram = null;
+    this._extIns = null;
     this._activeTool = null;
+    this._retinaFactor = 2;
   }
 
   get canvas() { return this._canvas; }
@@ -27,8 +28,7 @@ class Workspace {
     return parseFloat(this.canvas.style.height || this.canvas.height);
   }
   get gl() { return this._gl; }
-  get glProgram() { return this._glProgram; }
-  set glProgram(v) { this._glProgram = v; }
+  get extIns() { return this._extIns; }
   get activeTool() { return this._activeTool; }
   selectTool(v) { this._activeTool = v; }
 
@@ -36,8 +36,19 @@ class Workspace {
   appendCanvas(id) {
     document.getElementById(id).appendChild(this.canvas);
   }
+  resizeCanvas(w, h) {
+    this.canvas.width = this._retinaFactor * w;
+    this.canvas.height = this._retinaFactor * h;
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
+    this.gl.viewport(0, 0, this._retinaFactor * w, this._retinaFactor * h);
+  }
 
-  registerGL() { this._gl = getGL(this.canvas); }
+  registerGL() {
+    let gl = getGL(this.canvas);
+    this._gl = gl;
+    this._extIns = gl.getExtension('ANGLE_instanced_arrays'); // not used for now
+  }
 
   initialize(cb) {
     if (cb) cb.call(this, this);

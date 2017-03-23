@@ -1,8 +1,7 @@
 {
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "webpack",
-    "test": "jest"
+    "build": "webpack"
   },
   "devDependencies": {
     "babel-core": "^6.9.1",
@@ -24,7 +23,10 @@
     "html-webpack-plugin": "^2.22.0",
     "jest-cli": "^13.2.3",
     "json-loader": "^0.5.4",
+    "proxyquire": "^1.7.11",
+    "sinon": "^1.17.7",
     "style-loader": "^0.13.1",
+    "tape": "^4.6.3",
     "watchify": "^3.7.0",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1",
@@ -36,6 +38,7 @@
     "geom3": "0.0.1-alpha",
     "gl-matrix": "^2.3.2",
     "keymirror": "^0.1.1",
-    "lodash": "^4.13.1"
+    "lodash": "^4.13.1",
+    "raw-loader": "^0.5.1"
   }
 }
