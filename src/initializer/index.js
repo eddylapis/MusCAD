@@ -1,7 +1,7 @@
 import Workspace from './workspace';
 import { RenderingContainer } from './material';
 import { programFace, programLine } from './program';
-import DefaultCamera from '../camera/default-camera';
+import LookAtCamera from '../camera/lookat-camera';
 import CameraEvent from '../camera/camera-events';
 import { BasicTexture } from '../webgl';
 
@@ -20,34 +20,26 @@ programFace.updateUniform('light_diffuse_color', [.5, .5, .5]);
 // Initialize Camera
 CameraEvent.listenProjChange(c => {
   programFace.use();
-  programFace.updateUniform('mat_projection', c._matProjection);
+  programFace.updateUniform('mat_projection', c.matProj);
+
   programLine.use();
-  programLine.updateUniform('mat_projection', c._matProjection);
+  programLine.updateUniform('mat_projection', c.matProj);
 });
 
 CameraEvent.listenViewChange(c => {
-  let matCam = c._matCamera;
   programFace.use();
-  programFace.updateUniform('mat_view', matCam);
-  programFace.updateUniform('light_dir', [matCam[8], matCam[9], matCam[10]]);
+  programFace.updateUniform('mat_view', c.matView);
+  programFace.updateUniform('light_dir', c.eye);
+
   programLine.use();
-  programLine.updateUniform('mat_view', matCam);
+  programLine.updateUniform('mat_view', c.matView);
 });
 
-Workspace.camera = new DefaultCamera();
-Workspace.camera._matCamera = new Float32Array(
-  [
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, -4000, 1,
-  ]
-);
-Workspace.camera.emitViewChange();
+Workspace.camera = new LookAtCamera();
+Workspace.camera.lookAt([0,0,4000], [0,0,0], [0,1,0]);
 Workspace.camera.emitProjChange();
 
 //tmp
-
 let gl = Workspace.gl;
 gl.frontFace(gl.CCW);
 gl.enable(gl.CULL_FACE);
@@ -55,7 +47,6 @@ gl.enable(gl.DEPTH_TEST);
 
 gl.enable(gl.BLEND);
 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
 
 // Avoid Warning
 let buffer = new BasicTexture();

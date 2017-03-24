@@ -8,4 +8,7 @@ export default function dummy(Application) {
   let RenderingContainer = Application.RenderingContainer;
   for (let k in materials) RenderingContainer.updateMaterial(materials[k]);
   for (let k in definitions) RenderingContainer.updateDefinition(definitions[k]);
+
+  Application.definitions = definitions;
+  Application.materials = materials;
 }
