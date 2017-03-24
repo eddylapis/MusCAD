@@ -9,7 +9,7 @@ let runDevScripts = require('./_dev');
 runDevScripts(Application);
 
 import OrbitTool from './tools/orbit';
-Workspace.selectTool(new OrbitTool(Workspace));
+Workspace.selectTool(new OrbitTool());
 
 // Main Loop
 Workspace.forever(() => {

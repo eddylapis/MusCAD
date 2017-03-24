@@ -1,40 +1,22 @@
+import { Application, Workspace } from '../initializer';
 import Geom3 from 'geom3';
 
 import _ from 'lodash';
 
 export default class OrbitTool {
-  constructor(workspace) {
+  constructor() {
     this.last_x = null;
     this.last_y = null;
     this.state = {
       rotating: false,
-      target: this._calcCenter(workspace.definitions),
+      target: _calcCenter(Application.definitions),
     };
-    this.camera = workspace.camera;
-    this.displayWidth = workspace.displayWidth;
-    this.displayHeight = workspace.displayHeight;
+    this.camera = Application.Workspace.camera;
+    this.displayWidth = Application.Workspace.displayWidth;
+    this.displayHeight = Application.Workspace.displayHeight;
   }
 
-  _calcCenter(definitions) {
-    let count = 0,
-        x     = 0,
-        y     = 0,
-        z     = 0;
-
-    _.values(definitions).forEach(def => {
-      _.values(def.references).forEach(ref => {
-        x += ref.absTrans[12];
-        y += ref.absTrans[13];
-        z += ref.absTrans[14];
-        count += 1;
-      });
-    });
-
-    return [x / count, y / count, z / count];
-  }
-
-  activate() {
-  }
+  activate() { }
 
   mousedown(event) { this.state.rotating = true; }
   mouseup(event) { this.state.rotating = false; }
@@ -49,20 +31,9 @@ export default class OrbitTool {
 
     if (!this.state.zooming) return;
 
-    let dz    = event.wheelDelta,
-        speed = 0.8,
-        cam   = this.camera;
+    let dz    = event.wheelDelta;
 
-    let matV = Geom3.mat4.copy([], cam.matView);
-    let viewx = [matV[0], matV[4], matV[8]];
-    let viewy = [matV[1], matV[5], matV[9]];
-
-    matV[12] = -Geom3.dot(this.state.target, viewx);
-    matV[13] = -Geom3.dot(this.state.target, viewy);
-    matV[14] = matV[14] * Math.pow(speed, Math.sign(dz));
-
-    Geom3.mat4.invert(cam._matCamera, matV);
-    cam.emitViewChange();
+    _zoom(this.camera, dz, this.state.target);
   }
 
   mousemove(event) {
@@ -74,7 +45,7 @@ export default class OrbitTool {
       return null;
     };
 
-    let speed = 2;
+    let speed = 4;
 
     let x = event.clientX,
         y = event.clientY;
@@ -88,39 +59,82 @@ export default class OrbitTool {
 
       if (!dx || !dy) return;
 
-      orbitAround(this.camera, dy, dx);
+      _orbitAround(this.camera, dy, dx, this.state.target);
     }
 
     this.last_x = x;
     this.last_y = y;
-
-    function orbitAround(c, dx, dy, target=[0,0,0]) {
-      let viewx = [c.matCamera[0], c.matCamera[1], c.matCamera[2]];
-      let viewy = [c.matCamera[4], c.matCamera[5], c.matCamera[6]];
-      let newViewMat = Geom3.mat4.clone(c.matView);
-      Geom3.mat4.rotate(newViewMat, newViewMat, dx, viewx);
-      Geom3.mat4.rotate(newViewMat, newViewMat, dy, viewy);
-
-      _normalizeMat4(newViewMat);
-
-      Geom3.mat4.invert(c._matCamera, newViewMat);
-      c.emitViewChange();
-    }
-
-    function _normalizeMat4(m) {
-      let tmpVec = [];
-      Geom3.vec3.normalize(tmpVec, [m[0], m[4], m[8]]);
-      m[0] = tmpVec[0];
-      m[4] = tmpVec[1];
-      m[8] = tmpVec[2];
-      Geom3.vec3.normalize(tmpVec, [m[1], m[5], m[9]]);
-      m[1] = tmpVec[0];
-      m[5] = tmpVec[1];
-      m[9] = tmpVec[2];
-      Geom3.vec3.normalize(tmpVec, [m[2], m[6], m[10]]);
-      m[2] = tmpVec[0];
-      m[6] = tmpVec[1];
-      m[10] = tmpVec[2];
-    }
   }
+}
+
+function _zoom(c, dz, target=[0,0,0]) {
+  let mat4           = Geom3.mat4,
+      vec3           = Geom3.vec3,
+      speed          = .15,
+      matCamera      = c.matCamera,
+      zoomFactor     = Math.sign(dz) * speed,
+      zoomIn         = zoomFactor > 0,
+      transVec       = vec3.subtract([], target, c.eye);
+
+  if (zoomIn && _tooClose(target, c)) return;
+  if (!zoomIn && _tooFar(target, c)) return;
+
+  vec3.scale(transVec, transVec, speed * Math.sign(dz));
+  let trans = mat4.translate([], mat4.identity([]), transVec);
+
+  c.updateMatCamera(mat4.mul([], trans, matCamera));
+  c.emitViewChange();
+
+  function _tooClose(target, camera) {
+    let distance = vec3.len(vec3.subtract([], target, c.eye));
+    return distance / camera.near < 3;
+  }
+
+  function _tooFar(target, camera) {
+    let distance = vec3.len(vec3.subtract([], target, c.eye));
+    return distance / camera.far > 1.2;
+  }
+}
+
+function _orbitAround(c, dx, dy, target=[0,0,0]) {
+  let mat4           = Geom3.mat4,
+      vec3           = Geom3.vec3,
+      matCamera      = c.matCamera,
+      transVec       = vec3.negate([], target),
+      transVecInv    = target,
+      transTarget    = mat4.translate([], mat4.identity([]), transVec),
+      transTargetInv = mat4.invert([], transTarget),
+      transLon       = mat4.rotate([], mat4.identity([]), dy, c.yaxis),
+      transLat       = mat4.rotate([], mat4.identity([]), dx, c.xaxis),
+      transRot       = mat4.mul([], transLat, transLon);
+
+  c.updateMatCamera(
+    mat4.mul([], transTargetInv,
+    mat4.mul([], transRot,
+    mat4.mul([], transTarget,
+    matCamera
+    )))
+  );
+  c.emitViewChange();
+}
+
+function _calcCenter(definitions) {
+  // tmp
+    let count = 0,
+        x     = 0,
+        y     = 0,
+        z     = 0;
+
+  _.values(definitions).forEach(def => {
+    _.values(def.references).forEach(ref => {
+      if (Object.keys(def.vertices).length) {
+        x += ref.absTrans[12];
+        y += ref.absTrans[13];
+        z += ref.absTrans[14];
+        count += 1;
+      }
+    });
+  });
+
+  return [x / count, y / count, z / count];
 }
