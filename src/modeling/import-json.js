@@ -1,8 +1,10 @@
 export default function importJSON(json) {
+
   let definitions = {};
   let jsonDefinitions = json.definitions;
   let jsonMaterials = json.materials;
   let materials = jsonMaterials;
+  let preCalculated = !!json['_calculated'];
 
   // Load Definition one by one
   for (let definitionID in jsonDefinitions) {
@@ -47,6 +49,16 @@ export default function importJSON(json) {
         material: jsonMaterials[jsonFace.materialID],
         backMaterial: jsonMaterials[jsonFace.backMaterialID],
       };
+
+      if (preCalculated) {
+        Object.assign(faces[faceID], {
+          _vertices: jsonFace._vertices,
+          _normal: jsonFace._normal,
+          _normalBack: jsonFace._normalBack,
+          _uvsFront: jsonFace._uvsFront,
+          _uvsBack: jsonFace._uvsBack,
+        });
+      }
     }
 
     // Load all references

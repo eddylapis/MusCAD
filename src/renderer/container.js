@@ -3,6 +3,7 @@ import filter from 'lodash/fp/filter';
 import flow from 'lodash/fp/flow';
 
 import Part from './part';
+import PartPreCalculated from './part-pre-calculated';
 import Material from './material';
 import SolidLine from './solid-line';
 import getInstanceMats from './helpers/get-instance-mats';
@@ -68,7 +69,8 @@ class Container {
 
 function _make_id(defi, mat, side) { return `${defi.id}-${mat.id}-${side}`; }
 function _make_part(storage, faces, transArray, definition, material, side) {
-  storage[_make_id(definition, material, side)] = new Part(transArray, material, faces, side);
+  //storage[_make_id(definition, material, side)] = new Part(transArray, material, faces, side);
+  storage[_make_id(definition, material, side)] = new PartPreCalculated(transArray, material, faces, side);
 }
 
 let instance = new Container();
