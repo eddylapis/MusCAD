@@ -8,6 +8,7 @@ import Canvas from './canvas';
 import getGL from './get-gl';
 import forever from './forever';
 import {delegateEvents} from './canvas-events';
+import {mat4, vec3, vec4} from 'geom3';
 
 import CameraEvents from '../camera/camera-events';
 
@@ -62,8 +63,36 @@ class Workspace {
   initEvents() { delegateEvents(this.canvas, this); }
 
   forever(cb) { forever(cb); }
+
+  get procToScreen() {
+    return _procToScreen.bind(
+      this,
+      this.displayWidth, this.displayHeight,
+      this.camera.matProj, this.camera.matView
+    );
+  }
 }
 
 const instance = new Workspace();
 
 module.exports = instance;
+
+function _procToScreen(w, h, matProj, matView, pt, matIns) {
+  let trans = mat4.create();
+  if (matIns) {
+    mat4.mul(trans, matProj,
+    mat4.mul([], matView,
+    matIns
+    ));
+  } else {
+    mat4.mul(trans, matProj, matView);
+  }
+
+  let pt4d = vec4.transformMat4([], [pt[0], pt[1], pt[2], 1], trans);
+
+  let x = (1 + pt4d[0] / pt4d[3]) / 2.0 * w,
+      y = (1 - pt4d[1] / pt4d[3]) / 2.0 * h,
+      depth = pt4d[2];
+
+  return [x, y, depth];
+}

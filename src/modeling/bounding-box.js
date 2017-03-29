@@ -67,7 +67,7 @@ export default class BoundingBox {
     ];
   }
 
-  static fromPts(pts) {
+  static buildFromPts(pts) {
     let [minx, miny, minz] = [Infinity, Infinity, Infinity];
     let [maxx, maxy, maxz] = [-Infinity, -Infinity, -Infinity];
 
