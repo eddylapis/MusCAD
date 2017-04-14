@@ -1,14 +1,11 @@
-import importJSON from '../modeling/import-json';
+import importJSON from '../modeling/import-brep-json';
 
 export default function dummy(Application) {
   let json = require('raw-loader!./model.json');
   json = JSON.parse(json);
-  let {definitions, materials} = importJSON(json);
+  importJSON(Application, json);
 
   let RenderingContainer = Application.RenderingContainer;
-  for (let k in materials) RenderingContainer.updateMaterial(materials[k]);
-  for (let k in definitions) RenderingContainer.updateDefinition(definitions[k]);
-
-  Application.definitions = definitions;
-  Application.materials = materials;
+  for (let k in Application.materials) RenderingContainer.updateMaterial(Application.materials[k]);
+  for (let k in Application.definitions) RenderingContainer.updateDefinition(Application.definitions[k]);
 }

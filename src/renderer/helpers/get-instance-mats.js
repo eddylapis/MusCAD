@@ -1,9 +1,4 @@
 export default function getInstanceMats(definition) {
-  let arrMats = [];
-  let refs = definition.references;
-  for (let rid in refs) {
-    let ref = refs[rid];
-    arrMats.push(ref.absTrans);
-  }
-  return arrMats;
+  let refs = definition._references;
+  return refs.map(r => r.absTrans);
 }

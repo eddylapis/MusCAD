@@ -126,7 +126,7 @@ function _calcCenter(definitions) {
         z     = 0;
 
   _.values(definitions).forEach(def => {
-    _.values(def.references).forEach(ref => {
+    def._references.forEach(ref => {
       if (Object.keys(def.vertices).length) {
         x += ref.absTrans[12];
         y += ref.absTrans[13];

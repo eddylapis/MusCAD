@@ -8,11 +8,11 @@ import {
 let runDevScripts = require('./_dev');
 runDevScripts(Application);
 
-import OrbitTool from './tools/orbit';
-Workspace.selectTool(new OrbitTool());
-
 // Main Loop
+let gl = Workspace.gl;
 Workspace.forever(() => {
+  gl.stencilFunc(gl.EQUAL, 0, 1);
+  gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
   Application.programFace.enableArrayAll();
   Application.programFace.use();
   for (let k in Application.RenderingContainer.parts) {
@@ -20,6 +20,10 @@ Workspace.forever(() => {
   }
   Application.programFace.disableArrayAll();
 
+  gl.clear(gl.STENCIL_BUFFER_BIT);
+
+  gl.stencilFunc(gl.ALWAYS, 0, 1);
+  gl.stencilOp(gl.ZERO, gl.ZERO, gl.INCR);
   Application.programLine.use();
   Application.programLine.enableArrayAll();
   for (let k in Application.RenderingContainer.solidLines) {

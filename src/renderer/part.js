@@ -121,7 +121,7 @@ function _getTexScaleTrans(texture) {
 /* [o1,o2,o3,i1,i2,i3] holeIdx = 3 */
 function _allPos(face) {
   return face.innerLoops
-    .reduce((acc, l) => acc.concat([...l]), [...face.outerLoop])
+    .reduce((acc, l) => acc.concat([...l.vertices]), [...face.outerLoop.vertices])
     .map(v => v.position);
 }
 
@@ -154,6 +154,10 @@ function _earcutFix(arrPts, holeInd){
 }
 
 function _getInnerLoopStartingIdx(arrOuterLoop, arrInnerLoops) {
+  //tmp
+  arrOuterLoop = arrOuterLoop.vertices;
+  arrInnerLoops = arrInnerLoops.map(l => l.vertices);
+  //endtmp
   let indices = arrInnerLoops.map(l => l.length);
   let startLen = arrOuterLoop.length;
   indices.unshift(0);

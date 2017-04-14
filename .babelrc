@@ -2,6 +2,7 @@
   "presets": [ "es2015" ],
   "plugins": [
     "add-module-exports",
+    "transform-runtime",
     "transform-es2015-modules-umd",
     "transform-object-assign",
     "transform-es2015-object-super",

@@ -46,7 +46,7 @@ class Container {
       _make_part(this.parts, faces, transArray, definition, material, 'back');
     }
 
-    let refGroup = groupBy(r => r.material && r.material.id)(definition.references);
+    let refGroup = groupBy(r => r.materialID)(definition._references);
     let facesNoMaterial = filter(f => !f.material)(definition.faces);
     let facesNoBackMaterial = filter(f => !f.backMaterial)(definition.faces);
 
@@ -54,7 +54,7 @@ class Container {
       let materialFront = this.materials[mid] || this.materials['__default_front'];
       let materialBack = this.materials[mid] || this.materials['__default_back'];
       let refs = refGroup[mid];
-      let refTransArray = getInstanceMats({references: refs});
+      let refTransArray = getInstanceMats({_references: refs});
 
       _make_part(this.parts, facesNoMaterial, refTransArray, definition, materialFront, 'front');
       _make_part(this.parts, facesNoBackMaterial, refTransArray, definition, materialBack, 'back');
@@ -69,8 +69,8 @@ class Container {
 
 function _make_id(defi, mat, side) { return `${defi.id}-${mat.id}-${side}`; }
 function _make_part(storage, faces, transArray, definition, material, side) {
-  //storage[_make_id(definition, material, side)] = new Part(transArray, material, faces, side);
-  storage[_make_id(definition, material, side)] = new PartPreCalculated(transArray, material, faces, side);
+  storage[_make_id(definition, material, side)] = new Part(transArray, material, faces, side);
+  //storage[_make_id(definition, material, side)] = new PartPreCalculated(transArray, material, faces, side);
 }
 
 let instance = new Container();

@@ -19,20 +19,20 @@ programFace.updateUniform('light_diffuse_color', [.5, .5, .5]);
 
 // Initialize Camera
 CameraEvent.listenProjChange(c => {
-  programFace.use();
-  programFace.updateUniform('mat_projection', c.matProj);
+  Application.programFace.use();
+  Application.programFace.updateUniform('mat_projection', c.matProj);
 
-  programLine.use();
-  programLine.updateUniform('mat_projection', c.matProj);
+  Application.programLine.use();
+  Application.programLine.updateUniform('mat_projection', c.matProj);
 });
 
 CameraEvent.listenViewChange(c => {
-  programFace.use();
-  programFace.updateUniform('mat_view', c.matView);
-  programFace.updateUniform('light_dir', c.eye);
+  Application.programFace.use();
+  Application.programFace.updateUniform('mat_view', c.matView);
+  Application.programFace.updateUniform('light_dir', c.eye);
 
-  programLine.use();
-  programLine.updateUniform('mat_view', c.matView);
+  Application.programLine.use();
+  Application.programLine.updateUniform('mat_view', c.matView);
 });
 
 Workspace.camera = new LookAtCamera();
@@ -44,6 +44,7 @@ let gl = Workspace.gl;
 gl.frontFace(gl.CCW);
 gl.enable(gl.CULL_FACE);
 gl.enable(gl.DEPTH_TEST);
+gl.enable(gl.STENCIL_TEST);
 
 gl.enable(gl.BLEND);
 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

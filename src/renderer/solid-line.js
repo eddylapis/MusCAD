@@ -2,6 +2,8 @@ import Geom3 from 'geom3';
 
 import { ArrayF32, stride, offset } from '../webgl';
 
+import flatten from 'lodash/fp/flatten';
+
 export default class SolidLine {
   constructor(transArray, edges) {
     this.edges = edges;
@@ -14,39 +16,76 @@ export default class SolidLine {
   }
 
   compute() {
-    let vertexArray = [];
+    let aStore = [];
+    let bStore = [];
+    let sStore = [];
+
+    let add = pushPts.bind(null, aStore, bStore, sStore);
+
     let edges = this.edges;
 
     for (let eid in edges) {
       let edge = edges[eid];
-      vertexArray.push(...edge.start.position);
-      vertexArray.push(...edge.end.position);
+      if (edge.soft) continue;
+      add(edge.start.position, edge.end.position);
     }
 
-    this.vertexArray = new Float32Array(vertexArray);
-    this.numPts = vertexArray.length / 3;
+    this.aStore = flatten(aStore);
+    this.bStore = flatten(bStore);
+    this.sStore = sStore;
   }
 
   upload() {
-    let buffer = new ArrayF32();
-    this.buffer = buffer;
-    buffer.init();
-    buffer.bind();
-    buffer.alloc(this.vertexArray.length);
-    buffer.uploadSub(0, this.vertexArray);
+    let aStore = this.aStore;
+    let bStore = this.bStore;
+    let sStore = this.sStore;
+
+    let bufferA = new ArrayF32();
+    this.bufferA = bufferA;
+    bufferA.init();
+    bufferA.bind();
+    bufferA.alloc(aStore.length);
+    bufferA.uploadSub(0, new Float32Array(aStore));
+
+    let bufferB = new ArrayF32();
+    this.bufferB = bufferB;
+    bufferB.init();
+    bufferB.bind();
+    bufferB.alloc(aStore.length);
+    bufferB.uploadSub(0, new Float32Array(bStore));
+
+    let bufferS = new ArrayF32();
+    this.bufferS = bufferS;
+    bufferS.init();
+    bufferS.bind();
+    bufferS.alloc(aStore.length);
+    bufferS.uploadSub(0, new Float32Array(sStore));
+
+    this.numPts = sStore.length;
   }
 
   render(program) {
     if (!this.numPts) return;
     let gl = program.gl;
-    let extIns = program.extIns;
 
-    this.buffer.bind();
-    program.updateAttrPointer('a_position', 0, 0);
+    this.bufferA.bind();
+    program.updateAttrPointer('a_a', 0, 0);
+    this.bufferB.bind();
+    program.updateAttrPointer('a_b', 0, 0);
+    this.bufferS.bind();
+    program.updateAttrPointer('a_s', 0, 0);
 
     for (let i=0; i<this.numIns; i++) {
       program.updateUniform('mat_ins', this.transArray[i]);
-      gl.drawArrays(gl.LINES, 0, this.numPts);
+      gl.drawArrays(gl.TRIANGLES, 0, this.numPts);
     }
   }
+}
+
+function pushPts(aStore, bStore, sStore, a, b) {
+  a = [a[0], a[1], a[2]];
+  b = [b[0], b[1], b[2]];
+  aStore.push(...[a,a,b,b,b,a]);
+  bStore.push(...[b,b,a,a,a,b]);
+  sStore.push(...[-1,1,-1,-1,1,-1]);
 }
